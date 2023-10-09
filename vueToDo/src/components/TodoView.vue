@@ -5,6 +5,7 @@ import DisplayHideDoneTasks from './DisplayHideDoneTasks.vue';
 import TodoButton from './TodoButton.vue';
 import { uid } from 'uid';
 import _ from 'lodash';
+import SearchFilteredList from './SearchFilteredList.vue';
 
 export default {
     name: "TodoView",
@@ -15,7 +16,8 @@ export default {
             todoList: [],
             hideCompleted: false,
             isEditing: false,
-            editId: ""
+            editId: "",
+            isFiltering: false
 
         }
     },
@@ -26,7 +28,7 @@ export default {
         console.log("PARENT", this.todoList)
 
     },
-    components: { AddTodo, TodoButton, DisplayHideDoneTasks },
+    components: { AddTodo, TodoButton, DisplayHideDoneTasks, SearchFilteredList },
     methods: {
 
         // whatever the user add tasks below function will add it in array of todolist
@@ -86,13 +88,28 @@ export default {
             this.isEditing = false;
             this.editId = "";
             console.log("TaskLIST", this.todoList)
+        },
+        displayFilteredList(searchTask) {
+            console.log("isFiltering")
+            const filteredList = this.todoList.filter(task => task.todo.includes(searchTask))
+            console.log("FAIZ", filteredList)
+            return filteredList;
         }
     },
     //this willcontinously check on the changes of the states which below function depends on
     // if showAll then display all tasks and if not showAll then show only pending tasks
     computed: {
         displayList() {
-            return !this.hideCompleted ? this.todoList : this.todoList.filter(task => task.isCompleted == false)
+            if (this.isFiltering) {
+                const val = this.displayFilteredList();
+                console.log("Dhr", val)
+                return val;
+            }
+           
+            else{
+
+                return !this.hideCompleted ? this.todoList : this.todoList.filter(task => task.isCompleted == false)
+            }
         },
         fetchTaskFromId() {
             if (this.editId) {
@@ -116,15 +133,16 @@ export default {
                 const uniqueArr = _.uniq(arr);
                 uniqueArr.map(category => obj[category] = false)
                 arr.map(val => console.log("VAL", val))
-                return  obj ;
+                return obj;
             }
             else {
                 console.log("ELSE")
-                return { "dhruvi": "hi" }
+                return {}
             }
 
         }
     },
+
 }
 
 </script>
@@ -138,16 +156,29 @@ export default {
         <!-- checkbox for selecting either to showAll tasks or onlu undone tasks -->
         <div class="flex justify-end mt-2 ">
 
-            <DisplayHideDoneTasks :hide="this.hideCompleted" @emitShow="this.hideCompleted = !this.hideCompleted" />
+            <div class="mt-2">
+                <DisplayHideDoneTasks :hide="this.hideCompleted" @emitShow="this.hideCompleted = !this.hideCompleted" />
+            </div>
+            <p class="mt-1 mx-2">|</p>
+            <TodoButton @click="this.isFiltering = true">
+                <template #filter>Filter</template>
+            </TodoButton>
+            <TodoButton @click="this.isFiltering = false">
+                <template #filter>X</template>
+            </TodoButton>
         </div>
         <!-- Input tag child component with dynamically passing editted msg props -->
         <AddTodo @createTodoTask="handleTodoLists" @editTodoTask="saveEditedTask" :todoLists="todoList"
             :isItEditing="isEditing" :editId="editId" :editTask="fetchTaskFromId" :categories="fetchCategories" />
 
+        <!-------Search Filter todo ----->
+        <SearchFilteredList v-if="isFiltering" @emitFilteredList="displayFilteredList"></SearchFilteredList>
+
         <!-- list of todos -->
 
         <!-- iterates displayList based on showAll property -->
         <ul v-for="(task) in displayList" :key="task.id">
+            {{ task }}
             <div class=" flex my-2 border-2 p-2 rounded-lg ">
                 <div :class="{ 'mr-auto': true }">
                     <!-- onClicking taskcompleted or not can be checked -->
@@ -155,7 +186,7 @@ export default {
                         :style="{ color: task.color }" @click="() => handleDoneTasks(task)">{{ task.todo }}</h1>
                     <!-- task will be added with given colors -->
                     <p class="'line-through': false">{{
-                        Object.keys(task.category) ? Object.keys(task.category).toString() : "" }}</p>
+                        Object.keys(task.category).filter(key => task.category[key]).join(",") }}</p>
                 </div>
                 <div class=" mr-8 ">
 

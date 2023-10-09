@@ -16,6 +16,8 @@ export default {
             <slot name="hide"> </slot>
             <slot name="cancel"> </slot>
             <slot name="addNewCategory"></slot>
+            <slot name="filter"></slot>
+            <slot name="apply"></slot>
         </button>
 
 

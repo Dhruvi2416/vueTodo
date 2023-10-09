@@ -37,10 +37,10 @@ export default {
 
   // below method will continously watch the props getting changed
   watch: {
-    categories(category) {
-      console.log("C", this.categoryChoosen)
-    },
 
+    categories(newValues) {
+      this.categoryChoosen = { ...newValues }
+    },
     isItEditing(newEdit) {
       this.isEditing = newEdit;
       console.log(newEdit)
@@ -143,7 +143,7 @@ export default {
           <option selected disabled>Choose Category</option>
           <!-- for adding new category to the categories list -->
           <option v-for="(category) in Object.keys(categoryChoosen)" :key="generateKey(category)" :value="category"
-            :selected="categoryChoosen[category]">{{category }}
+            :selected="categoryChoosen[category]">{{ category }}
           </option>
           <option value="add category" class="font-bold  text-sm ">Add New Category +</option>
         </select>
