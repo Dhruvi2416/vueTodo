@@ -17,19 +17,92 @@ export default {
             hideCompleted: false,
             isEditing: false,
             editId: "",
-            isFiltering: false
+            isFiltering: false,
+            filterTask: {
+                text: "",
+                color: "",
+                categories: {}
+            },
 
         }
     },
-    //this will execute at the time of initialization
-    mounted() {
-        const storedTaskList = localStorage.getItem("taskList");
-        if (storedTaskList) { this.todoList = JSON.parse(storedTaskList) }
-        console.log("PARENT", this.todoList)
+    //this willcontinously check on the changes of the states which below function depends on
+    // if showAll then display all tasks and if not showAll then show only pending tasks
+    computed: {
+        displayList() {
 
-    },
-    components: { AddTodo, TodoButton, DisplayHideDoneTasks, SearchFilteredList },
+
+            if (this.isFiltering) {
+                //    console.log("TODO",this.todoList.map(task=>task.todo))
+                //    console.log("COLOR",this.todoList.map(task=>task.color))
+                //    console.log("CATEGORY",this.todoList.map(task=>Object.keys(task.category)))
+                const filteredLists = this.todoList.filter(task => task.todo.includes(this.filterTask.text) && task.color.includes(this.filterTask.color))
+                console.log(...this.todoList)
+                const filteredList = this.filterCategories(filteredLists);
+                console.log("FILTER", filteredList)
+                return !this.hideCompleted ? filteredList : filteredList.filter(task => task.isCompleted == false)
+            }
+            return !this.hideCompleted ? this.todoList : this.todoList.filter(task => task.isCompleted == false)
+
+
+        },
+        fetchTaskFromId() {
+            if (this.editId) {
+                const editingTask = this.todoList.find(todo => todo.id == this.editId)
+                return editingTask;
+            }
+
+        },
+        fetchCategories() {
+
+            const categoryList = this.todoList.map(todo => todo.category);
+            //  return _.uniq(categoryList);
+            if (categoryList.length > 0) {
+
+                const arr = [];
+                categoryList.map(cat => arr.push(...Object.keys(cat)))
+
+                const obj = {};
+                const uniqueArr = _.uniq(arr);
+                uniqueArr.map(category => obj[category] = false)
+
+                return obj;
+            }
+            else {
+                return {}
+            }
+
+        },
+        fetchColors() {
+            const colors = this.todoList.map(todo => todo.color);
+            const uniqueColors = _.uniq(colors);
+            return uniqueColors;
+        },
+
+    }, components: { AddTodo, TodoButton, DisplayHideDoneTasks, SearchFilteredList },
+    //this will execute at the time of initialization
+
+
     methods: {
+        filterCategories(taskList) {
+            //tasklist ekle filter thaine aveli list color ne text wali
+            if (taskList) {
+                const filteredList = [];
+                for (const task of taskList) {
+                    let matchesFilter = false;
+                    //filter task ekle ke je object ayo filter na apply thi ee
+                    Object.keys(this.filterTask.categories).forEach(category => {
+                        if (this.filterTask.categories[category] && task.category[category]) {
+                            matchesFilter = true;
+                        }
+                    })
+                    if (matchesFilter) {
+                        filteredList.push(task);
+                    }
+                }
+                return filteredList;
+            }
+        },
 
         // whatever the user add tasks below function will add it in array of todolist
         handleTodoLists(todoInfo) {
@@ -75,10 +148,8 @@ export default {
         },
         //save editing task here whenever the editTask is emitted editTask will be come again 
         saveEditedTask(editTask) {
-            console.log("Dhruvi is editing")
             const editingTask = this.todoList.find(todo => todo.id == editTask.editId);
 
-            console.log("Dhruvi edits", editTask)
 
             editingTask.todo = editTask.todo;
             editingTask.color = editTask.color;
@@ -87,60 +158,20 @@ export default {
             localStorage.setItem("taskList", JSON.stringify(this.todoList));
             this.isEditing = false;
             this.editId = "";
-            console.log("TaskLIST", this.todoList)
         },
-        displayFilteredList(searchTask) {
-            console.log("isFiltering")
-            const filteredList = this.todoList.filter(task => task.todo.includes(searchTask))
-            console.log("FAIZ", filteredList)
-            return filteredList;
+        assignFilteredValues(filterObject) {
+            if (filterObject) {
+                console.log("ST", filterObject)
+                this.filterTask = filterObject;
+                console.log("FT", this.filterTask.text)
+            }
         }
     },
-    //this willcontinously check on the changes of the states which below function depends on
-    // if showAll then display all tasks and if not showAll then show only pending tasks
-    computed: {
-        displayList() {
-            if (this.isFiltering) {
-                const val = this.displayFilteredList();
-                console.log("Dhr", val)
-                return val;
-            }
-           
-            else{
+    mounted() {
+        const storedTaskList = localStorage.getItem("taskList");
+        if (storedTaskList) { this.todoList = JSON.parse(storedTaskList) }
 
-                return !this.hideCompleted ? this.todoList : this.todoList.filter(task => task.isCompleted == false)
-            }
-        },
-        fetchTaskFromId() {
-            if (this.editId) {
-                console.log("EDITTTIIIIDDDDDD", this.editId)
-                const editingTask = this.todoList.find(todo => todo.id == this.editId)
-                return editingTask;
-            }
 
-        },
-        fetchCategories() {
-
-            const categoryList = this.todoList.map(todo => todo.category);
-            //  return _.uniq(categoryList);
-            console.log("DHRUVI", categoryList.length)
-            if (categoryList.length > 0) {
-                console.log("IF")
-                const arr = [];
-                categoryList.map(cat => arr.push(...Object.keys(cat)))
-                console.log("ARR", arr)
-                const obj = {};
-                const uniqueArr = _.uniq(arr);
-                uniqueArr.map(category => obj[category] = false)
-                arr.map(val => console.log("VAL", val))
-                return obj;
-            }
-            else {
-                console.log("ELSE")
-                return {}
-            }
-
-        }
     },
 
 }
@@ -163,22 +194,31 @@ export default {
             <TodoButton @click="this.isFiltering = true">
                 <template #filter>Filter</template>
             </TodoButton>
-            <TodoButton @click="this.isFiltering = false">
+
+        </div>
+        <!-- Input tag child component with dynamically passing editted msg props -->
+        <div v-show="!isFiltering">
+
+
+            <AddTodo @createTodoTask="handleTodoLists" @editTodoTask="saveEditedTask" :todoLists="todoList"
+                :isItEditing="isEditing" :editId="editId" :editTask="fetchTaskFromId" :categories="fetchCategories" />
+        </div>
+        <!-------Search Filter todo ----->
+        <div v-show="isFiltering" class="flex">
+
+
+            <SearchFilteredList @emitFilteredList="assignFilteredValues" :colorsList="fetchColors" class="mt-4"
+                :categoryList="fetchCategories">
+            </SearchFilteredList>
+            <TodoButton @click="this.isFiltering = false" class="mt-4">
                 <template #filter>X</template>
             </TodoButton>
         </div>
-        <!-- Input tag child component with dynamically passing editted msg props -->
-        <AddTodo @createTodoTask="handleTodoLists" @editTodoTask="saveEditedTask" :todoLists="todoList"
-            :isItEditing="isEditing" :editId="editId" :editTask="fetchTaskFromId" :categories="fetchCategories" />
-
-        <!-------Search Filter todo ----->
-        <SearchFilteredList v-if="isFiltering" @emitFilteredList="displayFilteredList"></SearchFilteredList>
-
         <!-- list of todos -->
 
         <!-- iterates displayList based on showAll property -->
         <ul v-for="(task) in displayList" :key="task.id">
-            {{ task }}
+
             <div class=" flex my-2 border-2 p-2 rounded-lg ">
                 <div :class="{ 'mr-auto': true }">
                     <!-- onClicking taskcompleted or not can be checked -->

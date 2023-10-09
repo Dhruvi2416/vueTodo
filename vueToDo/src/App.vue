@@ -13,7 +13,7 @@ export default {
 
 
 <template>
-  <header>
+  <header >
     <div class="flex w-full justify-center align-middle mt-12 ">   
       <TodoView />
     </div>

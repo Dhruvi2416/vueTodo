@@ -20,8 +20,6 @@ components:{
     },
     created() {
         this.todoList = [...this.list]
-        console.log("Todo",this.todoList)
-        console.log("S",this.showAll)
     },
 
     methods: {
