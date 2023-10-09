@@ -22,7 +22,7 @@ export default {
       color: "black",
       editingId: "",
       isEditing: this.isItEditing,
-      categoryChoosen: this.categories,
+      categoryChoosen: { ...this.categories },
       newCategory: false,
       error: "",
       addingNewCategoryValue: ""
@@ -37,6 +37,9 @@ export default {
 
   // below method will continously watch the props getting changed
   watch: {
+    categories(category) {
+      console.log("C", this.categoryChoosen)
+    },
 
     isItEditing(newEdit) {
       this.isEditing = newEdit;
@@ -81,7 +84,7 @@ export default {
         const todoInfo = {
           color: this.color,
           todo: this.todo,
-          categoryChoosen: this.categoryChoosen,
+          categoryChoosen: { ...this.categoryChoosen },
           editId: this.editingId
         }
         if (!this.isEditing) {
@@ -139,8 +142,8 @@ export default {
           class=" mx-4 block py-2.5 px-2 w-full text-sm text-gray-500 bg-transparent  border-2 border-black-200   ">
           <option selected disabled>Choose Category</option>
           <!-- for adding new category to the categories list -->
-          <option v-for="(category) in Object.keys(categories)" :key="generateKey(category)" :value="category"
-            :selected="categoryChoosen[category]">{{ category }}
+          <option v-for="(category) in Object.keys(categoryChoosen)" :key="generateKey(category)" :value="category"
+            :selected="categoryChoosen[category]">{{category }}
           </option>
           <option value="add category" class="font-bold  text-sm ">Add New Category +</option>
         </select>
@@ -154,7 +157,7 @@ export default {
         <input v-model="addingNewCategoryValue" type="text" class="mt-2 border-2 rounded-lg mr-2 p-2 h-7 border-black"
           placeholder="Enter your new category">
 
-        <TodoButton class="ml-4 mt-0"  @click="handleAddingNewCategory">
+        <TodoButton class="ml-4 mt-0" @click="handleAddingNewCategory">
 
           <!-- For cancelling the new category input -->
           <template #addNewCategory>

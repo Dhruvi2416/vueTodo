@@ -106,18 +106,22 @@ export default {
 
             const categoryList = this.todoList.map(todo => todo.category);
             //  return _.uniq(categoryList);
+            console.log("DHRUVI", categoryList.length)
             if (categoryList.length > 0) {
+                console.log("IF")
                 const arr = [];
-                categoryList.map(cat => arr.push(Object.keys(cat)))
-
+                categoryList.map(cat => arr.push(...Object.keys(cat)))
+                console.log("ARR", arr)
                 const obj = {};
                 const uniqueArr = _.uniq(arr);
-                uniqueArr.map(category => { if (!obj[category]) { obj[category] = false } })
+                uniqueArr.map(category => obj[category] = false)
                 arr.map(val => console.log("VAL", val))
-                return obj;
+                return  obj ;
             }
-            else
-                return {}
+            else {
+                console.log("ELSE")
+                return { "dhruvi": "hi" }
+            }
 
         }
     },
@@ -145,12 +149,13 @@ export default {
         <!-- iterates displayList based on showAll property -->
         <ul v-for="(task) in displayList" :key="task.id">
             <div class=" flex my-2 border-2 p-2 rounded-lg ">
-                <div :class="{ 'mr-auto': true, 'line-through': task.isCompleted }">
+                <div :class="{ 'mr-auto': true }">
                     <!-- onClicking taskcompleted or not can be checked -->
-                    <h1 class="text-lg font-bold" :style="{ color: task.color }">{{ task.todo }}</h1>
+                    <h1 class="text-lg font-bold" :class="{ 'line-through': task.isCompleted }"
+                        :style="{ color: task.color }" @click="() => handleDoneTasks(task)">{{ task.todo }}</h1>
                     <!-- task will be added with given colors -->
-                    <p @click="() => handleDoneTasks(task)">{{
-                        task.category }}</p>
+                    <p class="'line-through': false">{{
+                        Object.keys(task.category) ? Object.keys(task.category).toString() : "" }}</p>
                 </div>
                 <div class=" mr-8 ">
 
