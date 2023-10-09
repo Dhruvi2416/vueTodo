@@ -15,6 +15,7 @@ export default {
             <slot name="showAll"> </slot>
             <slot name="hide"> </slot>
             <slot name="cancel"> </slot>
+            <slot name="addNewCategory"></slot>
         </button>
 
 

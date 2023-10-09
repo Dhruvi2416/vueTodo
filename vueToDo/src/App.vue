@@ -11,15 +11,12 @@ export default {
 }
 </script>
 
+
 <template>
   <header>
-
-    <div class="flex w-full justify-center align-middle mt-12 ">
-   
+    <div class="flex w-full justify-center align-middle mt-12 ">   
       <TodoView />
     </div>
-
-
   </header>
 </template>
 

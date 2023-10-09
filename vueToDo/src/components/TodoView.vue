@@ -4,6 +4,7 @@ import AddTodo from './AddTodo.vue';
 import DisplayHideDoneTasks from './DisplayHideDoneTasks.vue';
 import TodoButton from './TodoButton.vue';
 import { uid } from 'uid';
+import _ from 'lodash';
 
 export default {
     name: "TodoView",
@@ -12,18 +13,17 @@ export default {
         return {
 
             todoList: [],
-            id: 0,
-            editMsg: "",
             hideCompleted: false,
-            editColor: "black",
-            editCategory: "Choose Category"
+            isEditing: false,
+            editId: ""
+
         }
     },
     //this will execute at the time of initialization
     mounted() {
         const storedTaskList = localStorage.getItem("taskList");
         if (storedTaskList) { this.todoList = JSON.parse(storedTaskList) }
-
+        console.log("PARENT", this.todoList)
 
     },
     components: { AddTodo, TodoButton, DisplayHideDoneTasks },
@@ -40,26 +40,20 @@ export default {
                 color: todoInfo.color,
                 category: todoInfo.categoryChoosen
             }
+
             //newtask is added in old todolist
             this.todoList = [...this.todoList, newTask]
             // newly updated todolist set in localstorage
             localStorage.setItem("taskList", JSON.stringify(this.todoList));
+
         },
-
-
         // this below function will first find the edited task with id then pass the edit message to child component and 
         // will be removed from the list
         handleEditing(editTask) {
             // ------blahesblahlint-diblahsable-neblahxt-lblahine------ remove blah and this line will disable next line
             // debugger
-          
-            this.todoList = this.todoList.filter((task) => task.id != editTask.id)
-            this.editMsg = editTask.todo
-            this.editCategory = editTask.category
-            this.editColor = editTask.color
-
-           
-            return this.editMsg
+            this.editId = editTask.id;
+            this.isEditing = true;
         },
         //deleting todo task
         handleDelete(deleteTaskId) {
@@ -76,6 +70,22 @@ export default {
             task.isCompleted = !task.isCompleted;
             this.todoList.find(todo => { if (todo.id == task.id) { todo.isCompleted = task.isCompleted } })
             localStorage.setItem("taskList", JSON.stringify(this.todoList));
+        },
+        //save editing task here whenever the editTask is emitted editTask will be come again 
+        saveEditedTask(editTask) {
+            console.log("Dhruvi is editing")
+            const editingTask = this.todoList.find(todo => todo.id == editTask.editId);
+
+            console.log("Dhruvi edits", editTask)
+
+            editingTask.todo = editTask.todo;
+            editingTask.color = editTask.color;
+            editingTask.category = editTask.categoryChoosen;
+
+            localStorage.setItem("taskList", JSON.stringify(this.todoList));
+            this.isEditing = false;
+            this.editId = "";
+            console.log("TaskLIST", this.todoList)
         }
     },
     //this willcontinously check on the changes of the states which below function depends on
@@ -83,14 +93,35 @@ export default {
     computed: {
         displayList() {
             return !this.hideCompleted ? this.todoList : this.todoList.filter(task => task.isCompleted == false)
+        },
+        fetchTaskFromId() {
+            if (this.editId) {
+                console.log("EDITTTIIIIDDDDDD", this.editId)
+                const editingTask = this.todoList.find(todo => todo.id == this.editId)
+                return editingTask;
+            }
+
+        },
+        fetchCategories() {
+
+            const categoryList = this.todoList.map(todo => todo.category);
+            //  return _.uniq(categoryList);
+            if (categoryList.length > 0) {
+                const arr = [];
+                categoryList.map(cat => arr.push(Object.keys(cat)))
+
+                const obj = {};
+                const uniqueArr = _.uniq(arr);
+                uniqueArr.map(category => { if (!obj[category]) { obj[category] = false } })
+                arr.map(val => console.log("VAL", val))
+                return obj;
+            }
+            else
+                return {}
+
         }
     },
-
-
-
 }
-
-
 
 </script>
 
@@ -106,7 +137,8 @@ export default {
             <DisplayHideDoneTasks :hide="this.hideCompleted" @emitShow="this.hideCompleted = !this.hideCompleted" />
         </div>
         <!-- Input tag child component with dynamically passing editted msg props -->
-        <AddTodo @createTodoTask="handleTodoLists" :msg="editMsg" :editColor="editColor" :editCategory="editCategory" />
+        <AddTodo @createTodoTask="handleTodoLists" @editTodoTask="saveEditedTask" :todoLists="todoList"
+            :isItEditing="isEditing" :editId="editId" :editTask="fetchTaskFromId" :categories="fetchCategories" />
 
         <!-- list of todos -->
 
@@ -115,10 +147,10 @@ export default {
             <div class=" flex my-2 border-2 p-2 rounded-lg ">
                 <div :class="{ 'mr-auto': true, 'line-through': task.isCompleted }">
                     <!-- onClicking taskcompleted or not can be checked -->
-                    <h1 class="text-lg font-bold">{{ task.category }}</h1>
+                    <h1 class="text-lg font-bold" :style="{ color: task.color }">{{ task.todo }}</h1>
                     <!-- task will be added with given colors -->
-                    <p @click="() => handleDoneTasks(task)" :style="{ color: task.color }">{{
-                        task.todo }}</p>
+                    <p @click="() => handleDoneTasks(task)">{{
+                        task.category }}</p>
                 </div>
                 <div class=" mr-8 ">
 
