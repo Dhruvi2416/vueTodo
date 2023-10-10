@@ -42,42 +42,54 @@ export default {
 
         },
         handleSelectCategory(e) {
-
+            //this following loop is done to make all the rest of the values false so that none can remove any filter on category
+            if (e.target.value == "") {
+                for (const category of Object.keys(this.categoryList)) {
+                    this.searchCategory[category] = false;
+                }
+                //if selected is None then whatever comes in  i.t "" value turn it to false
+                this.searchCategory[e.target.value] = false;
+            }
             //if the given category is selected then deselect it and if deselected select it
-            this.searchCategory[e.target.value] = !this.searchCategory[e.target.value]
+            else {
+                this.searchCategory[e.target.value] = !this.searchCategory[e.target.value]
+            }
         }
     },
-    watch: {
-        categoryList(newValues) {
-            this.searchCategory = { ...newValues };
-        }
-    }
+
 }
 </script>
 
 <template>
-    <div class="flex h-10">
-        <input type="text" placeholder="Search Task" v-model="searchTask" class="border-2  pl-2">
+    <div class="flex ">
+        <!-- text search  -->
+        <input type="text" placeholder="Search Task" v-model="searchTask" class="font-semibold border-2 h-10 pl-2">
+
+        <!-- Color Search -->
         <label for="underline_select" class="sr-only">Underline select</label>
         <select id="underline_select" v-model="searchColor"
-            class=" mx-4 block py-2.5 px-2 w-full text-sm text-gray-500 bg-transparent  border-2 border-black-200   ">
+            class="h-10 text-black p-2 font-semibold mx-4 block py-2.5 px-2 w-full text-sm text-black-500 bg-transparent  border-2 border-black-200   ">
 
-            <option selected disabled>Search Color</option>
+            <option selected disabled class="text-black p-2 font-semibold" >Search Color</option>
             <option v-for="color in colorsList" :key="generateKey(color)" class="text-white"
                 :style="{ backgroundColor: color }">{{ color }}</option>
+            <option value="">None</option>
         </select>
-        <select @change="handleSelectCategory" multiple id="underline_select "
-            class=" mx-4 block py-2.5 px-2 w-full text-sm text-gray-500 bg-transparent  border-2 border-black-200 h-12   ">
 
-            <option selected disabled>Search Category</option>
+        <!-- Category Search multiple -->
+        <select @change="handleSelectCategory" multiple id="underline_select "
+            class="h-24  mx-4 block py-2.5 px-2 w-96 text-sm text-black-500 bg-transparent  border-2 border-black-200   ">
+
+            <option selected disabled class="text-black p-2 font-semibold">Search Category</option>
             <option :selected="searchCategory[category]" v-for="(category) in Object.keys(categoryList)"
-                :key="generateKey(category)">{{ category }}</option>
+                :key="generateKey(category)" class="py-1">{{ category }}</option>
+            <option value="" class="font-semibold ">None</option>
+
         </select>
         <div class="flex ">
             <TodoButton @click="emitSearchFiltering" class="mx-2">
                 <template #apply>Apply</template>
             </TodoButton>
-
         </div>
     </div>
 </template>

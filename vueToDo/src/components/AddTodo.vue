@@ -37,7 +37,7 @@ export default {
       return uid();
     },
     // on clicking + child comp will emit to update it's parent component
-  
+
     createEditTodo() {
       // If color task and category all are choosen then and then only allow to add item
       const categoryCheckListArr = Object.values(this.categoryChoosen)
@@ -120,27 +120,27 @@ export default {
 
 <template>
   <div>
-    mention the chronology of methods properties
+   
     <!-- ERROR -->
-    <div v-show="error" class="flex justify-center text-lg text-red-600 font-bold">{{ this.error }}</div>
+    <div v-show="error" class="flex justify-center text-lg text-red-900 font-bold">{{ this.error }}</div>
     <div class=" flex mt-4 ">
       <!-- Input text for task -->
-      <input type="text" v-model="todo" class="h-10  p-2 pl-10 text-sm mr-6 border-2 rounded-full border-green-600"
+      <input type="text" v-model="todo" class="h-10  p-2 pl-10 text-sm mr-6 border-2 rounded-full "
         placeholder="Enter your task here" />
 
       <!-- User selects the color of the task -->
-      <p class="font-semibold mt-2">Choose color</p><input class="mt-3 mx-2  w-5 h-5" type="color" v-model="color">
+      <p class="font-semibold mt-2 ">Choose color</p><input class="mt-3 mx-2  w-5 h-5" type="color" v-model="color">
       <!-- displaying category list -->
       <div class="relative" v-if="!newCategory">
         <label for="underline_select" class="sr-only">Underline select</label>
         <select multiple @change="handleCategoryChange" id="underline_select" placeholder="Choose Category"
-          class="h-16 mx-4 block py-2.5 px-2 w-full text-sm text-gray-500 bg-transparent  border-2 border-black-200   ">
-          <option selected disabled>Choose Category</option>
+          class="h-24 mx-4 block py-2.5 px-2 w-full text-sm text-black-500 bg-transparent  border-2 border-black-200   ">
+          <option selected disabled class="text-black pb-2 border-b-2 font-bold">Choose Category</option>
           <!-- for adding new category to the categories list -->
           <option v-for="(category) in Object.keys(categoryChoosen)" :key="generateKey(category)" :value="category"
-            :selected="categoryChoosen[category]">{{ category }}
+            :selected="categoryChoosen[category]" class="py-2">{{ category }}
           </option>
-          <option value="add category" class="font-bold  text-sm ">Add New Category +</option>
+          <option value="add category" class="font-bold  text-sm border-t-2 pt-2 ">Add New Category +</option>
         </select>
       </div>
 
@@ -171,6 +171,10 @@ export default {
         <template #add>Edit</template>
       </TodoButton>
     </div>
-
   </div>
 </template>
+
+
+
+
+   

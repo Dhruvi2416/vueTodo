@@ -1,8 +1,5 @@
 <script >
-
 import TodoView from './components/TodoView.vue';
-
-
 export default {
   name: "App",
   components: {
@@ -11,14 +8,11 @@ export default {
 }
 </script>
 
-
 <template>
-  <header >
-    <div class="flex w-full justify-center align-middle mt-12 ">   
+  <header class=" ">
+    <div class=" flex justify-center self-center mt-12  ">
       <TodoView />
     </div>
   </header>
 </template>
 
-
-<style></style>

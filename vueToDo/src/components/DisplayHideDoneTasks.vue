@@ -9,7 +9,7 @@ export default {
             hideCompleted: this.hide
         }
     },
-    
+
     //return true or false if true then display undone tasks only else display all
     methods: {
         handleHideCompletedTask() {
